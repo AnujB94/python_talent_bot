@@ -3,7 +3,7 @@ services:
     name: python-talent-bot
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "pip install -r requirements.txt && python -m spacy download en_core_web_sm"
     startCommand: "python main.py"
     envVars:
       - key: BOT_TOKEN
