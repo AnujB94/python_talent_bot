@@ -3,6 +3,17 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 import excel_utils
 import nlp_utls
 import os
+from flask import Flask, request
+import logging
+
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
+# Initialize Flask app
+app = Flask(__name__)
 
 # Step tracking
 user_states = {}
@@ -96,15 +107,42 @@ async def contact_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await query.message.reply_text("Contact: +918999272213")
 
-# Run bot
+# Initialize bot
 TOKEN = os.getenv("BOT_TOKEN")
-app = Application.builder().token(TOKEN).build()
+application = Application.builder().token(TOKEN).build()
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CallbackQueryHandler(button_handler))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
-app.add_handler(CallbackQueryHandler(contact_handler, pattern=r'^contact_'))
+# Add handlers
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CallbackQueryHandler(button_handler))
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
+application.add_handler(CallbackQueryHandler(contact_handler, pattern=r'^contact_'))
 
+# Initialize Excel file
 excel_utils.ensure_excel_file()
-print("Bot running...")
-app.run_polling()
+
+# Flask routes
+@app.route('/')
+def index():
+    return 'Bot is running!'
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(), application.bot)
+    application.process_update(update)
+    return 'ok'
+
+def main():
+    # Get the port from environment variable or default to 10000
+    port = int(os.environ.get('PORT', 10000))
+    
+    # Set webhook
+    webhook_url = os.environ.get('WEBHOOK_URL')
+    if webhook_url:
+        application.bot.set_webhook(url=f'{webhook_url}/webhook')
+        print(f"Webhook set to {webhook_url}/webhook")
+    
+    # Start Flask server
+    app.run(host='0.0.0.0', port=port)
+
+if __name__ == '__main__':
+    main()
