@@ -2,6 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes, filters
 import excel_utils
 import nlp_utls
+import os
 
 # Step tracking
 user_states = {}
@@ -72,7 +73,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             del user_states[user_id]
 
     elif state['role'] == 'recruiter':
-        parsed = nlp_utils.parse_user_query(text)
+        parsed = nlp_utls.parse_user_query(text)
         results = excel_utils.search_actors_in_excel(**parsed)
 
         if not results:
