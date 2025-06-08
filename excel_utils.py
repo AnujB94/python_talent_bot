@@ -1,7 +1,7 @@
 from openpyxl import load_workbook, Workbook
 import os
 
-EXCEL_FILE = "actors.xlsx"
+EXCEL_FILE = os.path.join("/tmp", "actors.xlsx")
 
 def ensure_excel_file():
     if not os.path.exists(EXCEL_FILE):

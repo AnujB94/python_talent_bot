@@ -93,10 +93,11 @@ async def contact_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if paid == 'True':
         await query.message.reply_text(f"Contact: {phone}")
     else:
-        await query.message.reply_text("Contact our team at +919876543210")
+        await query.message.reply_text("Contact: +918999272213")
 
 # Run bot
-app = Application.builder().token("7760512596:AAEdNl4_SD6WmpRas_ZyXlLrnq0wy9OJBIU").build()
+TOKEN = os.getenv("BOT_TOKEN")
+app = Application.builder().token(TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CallbackQueryHandler(button_handler))
